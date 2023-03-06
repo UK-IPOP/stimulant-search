@@ -59,7 +59,6 @@ ic6 = ic6_string.split(',')
 
 #No exclusion terms for Criteria 6
 
-
 #Create regex for inclusion terms for Criteria 1-6
 ic1_regex = re.compile(r'*|'.join(ic1).replace("| ","|"), re.I)
 ic2_regex = re.compile(r'|'.join(ic2).replace("| ","|"), re.I)
@@ -82,24 +81,28 @@ cr4_list = []
 cr5_list = []
 cr6_list = []
 for text in df['Notes']:
-    #Create list to store all met criteria for a file
     print(text)
     #Check if text meets criteria 1
-    cr1_list = cr1_list + [bool(ic1_regex.search(text)) == True and not bool(ec1_regex.search(text)) == True]
+    cr1_list = cr1_list + [bool(ic1_regex.search(text)) == True and bool(ec1_regex.search(text)) == False]
     #Check if text meets criteria 2
-    cr2_list = cr2_list + [bool(ic2_regex.search(text)) == True and not bool(ec2_regex.search(text)) == True]
+    cr2_list = cr2_list + [bool(ic2_regex.search(text)) == True and bool(ec2_regex.search(text)) == False]
     #Check if text meets criteria 3
-    cr3_list =cr3_list + [bool(ic3_regex.search(text)) == True and not bool(ec3_regex.search(text)) == True]
+    cr3_list =cr3_list + [bool(ic3_regex.search(text)) == True and bool(ec3_regex.search(text)) == False]
     #Check if text meets criteria 4
     cr4_list = cr4_list +[bool(ic4_regex.search(text)) == True]
     #Check if text meets criteria 5
-    cr5_list = cr5_list +[bool(ic5_regex.search(text)) == True and not bool(ec5_regex.search(text)) == True]
+    cr5_list = cr5_list +[bool(ic5_regex.search(text)) == True and bool(ec5_regex.search(text)) == False]
     #Check if text meets criteria 6 
     cr6_list = cr6_list +[bool(ic6_regex.search(text)) == True]
     
-#Create a datafram of criteria
+#Create a dataframe of criteria
 criteria_df = pd.DataFrame({'Criteria 1' : cr1_list, 'Criteria 2' : cr2_list, 'Criteria 3' : cr3_list, 'Criteria 4' : cr4_list, 'Criteria 5' : cr5_list, 'Criteria 6' : cr6_list})
 
-    
+#Check if Level 1 is met for any criteria
+Level_1 =pd.DataFrame({'Level 1' : criteria_df.any(axis = 1)})
 
-               
+#Concatenate dataframes
+total_df = pd.concat([criteria_df, Level_1], axis = 1)
+
+#Write dataframe to csv
+total_df.to_csv('Level_1.csv')
